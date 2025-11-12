@@ -2,17 +2,66 @@ import streamlit as st
 import datetime
 from typing import Dict, Any
 
-# ... (API Logic giữ nguyên) ... 
-# ... (Hàm fetch_lottery_result và check_ticket giữ nguyên) ...
+# =================================================================
+#           PHẦN 1: LOGIC API (Đang bị thiếu trong file của bạn)
+# =================================================================
 
-# --- GIAO DIỆN STREAMLIT MỚI ---
+def fetch_lottery_result(date_str: str, province: str) -> Dict[str, str]:
+    """
+    Hàm mô phỏng việc gọi dữ liệu kết quả xổ số (thay thế cho API thực tế).
+    
+    LƯU Ý: Đang sử dụng dữ liệu MÔ PHỎNG. Khi triển khai thực tế, 
+    bạn cần thay thế bằng API truy vấn kết quả xổ số trực tiếp.
+    """
+    # Dữ liệu mô phỏng cố định cho mục đích demo UI (ví dụ cho 12/11/2025 tại TP.HCM)
+    if date_str == "12/11/2025" and province == "TP.HCM":
+        return {
+            "DB": "886655", # Đặc biệt
+            "G1": "123456",
+            "G2": "778899",
+            "G3_1": "010101",
+            "G3_2": "020202",
+            "G8": "55"
+        }
+    return {} # Không có kết quả
+
+def check_ticket(ticket_number: str, results: Dict[str, str]) -> str:
+    """
+    Thực hiện Đối chiếu số vé với kết quả (Logic SPG lõi).
+    """
+    if not results:
+        return "Không tìm thấy dữ liệu kết quả xổ số để đối chiếu."
+    
+    ticket_number = ticket_number.strip()
+
+    # 1. Giải Đặc Biệt (6 số)
+    if ticket_number == results.get("DB"):
+        return f"🎉 **Chúc mừng!** Vé số **{ticket_number}** đã trúng **Giải ĐẶC BIỆT** (2 Tỷ VNĐ)!"
+
+    # 2. Giải Phụ Đặc Biệt (Trùng 5 số cuối, sai 1 số đầu)
+    db_last_5 = results.get("DB")[-5:]
+    ticket_last_5 = ticket_number[-5:]
+    
+    if ticket_last_5 == db_last_5 and ticket_number[0] != results.get("DB")[0]:
+        return f"✨ **Chúc mừng!** Vé số **{ticket_number}** đã trúng **Giải PHỤ ĐẶC BIỆT** (50 Triệu VNĐ)!"
+
+    # 3. Giải Khuyến Khích
+    if ticket_number[0] == results.get("DB")[0] and ticket_number != results.get("DB"):
+        return f"💡 **Chúc mừng!** Vé số **{ticket_number}** đã trúng **Giải KHUYẾN KHÍCH** (6 Triệu VNĐ)!"
+
+    # Thêm logic dò các giải khác nếu cần
+    
+    return "💔 **Rất tiếc.** Chúc bạn may mắn lần sau."
+
+# =================================================================
+#           PHẦN 2: GIAO DIỆN STREAMLIT (Phần bạn đã cung cấp)
+# =================================================================
 
 st.set_page_config(page_title="Dò Vé Số Tự Động", layout="centered")
 st.title("🎰 Dò Vé Số Tự Động")
 st.markdown("---")
 
-# **DANH SÁCH TỈNH MIỀN NAM ĐÃ CẬP NHẬT (THAY ĐỔI Ở ĐÂY)**
-# Danh sách này bao gồm các tỉnh thường quay và luân phiên
+# **DANH SÁCH TỈNH MIỀN NAM ĐÃ CẬP NHẬT**
 province_options = [
     "TP.HCM", "Đồng Nai", "Cần Thơ", "Sóc Trăng", "Tiền Giang", "Kiên Giang",
     "Đà Lạt", "Bạc Liêu", "Bến Tre", "Vũng Tàu", "Đồng Tháp", "Cà Mau", 
@@ -34,7 +83,6 @@ with col1:
     
 with col2:
     # INPUT 2: Tỉnh
-    # SỬ DỤNG DANH SÁCH MỚI
     province = st.selectbox(
         "Tỉnh/Thành Phố",
         province_options,
@@ -53,7 +101,6 @@ st.markdown("---")
 
 # Nút "Tạo kết quả"
 if st.button("🔍 Dò Kết Quả Vé Số", type="primary", use_container_width=True):
-    # ... (Logic xử lý nút bấm giữ nguyên) ...
     # Chuẩn hóa dữ liệu đầu vào
     date_str = lottery_date.strftime("%d/%m/%Y")
     
@@ -78,7 +125,7 @@ if st.button("🔍 Dò Kết Quả Vé Số", type="primary", use_container_widt
                     "Số vé": ticket_number
                 }
                 
-                # Gọi API Logic
+                # Gọi API Logic (LƯU Ý: Hàm đã được định nghĩa ở PHẦN 1)
                 results = fetch_lottery_result(date_str, province)
                 final_result = check_ticket(ticket_number, results)
                 
@@ -86,3 +133,4 @@ if st.button("🔍 Dò Kết Quả Vé Số", type="primary", use_container_widt
                 st.balloons()
                 st.subheader(f"Kết quả dò vé {ticket_number}:")
                 st.info(final_result)
+
