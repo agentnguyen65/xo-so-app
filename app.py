@@ -17,7 +17,7 @@ def fetch_lottery_result(date_str: str, province: str) -> Dict[str, str]:
     # -------------------------------------------------------------
     # THAY THẾ API DƯỚI ĐÂY BẰNG API THỰC TẾ CỦA BẠN
     # -------------------------------------------------------------
-    API_ENDPOINT_URL = "https://api.example.com/lottery/results" 
+    API_ENDPOINT_URL = "https://nld.com.vn/ket-qua-xo-so-hom-nay-12-11-xo-so-mien-nam-dong-nai-can-tho-soc-trang-196251112131153214.htm" 
     
     params = {
         "date": date_str,  # Ví dụ: 11/11/2025
@@ -74,6 +74,7 @@ def check_ticket(ticket_number: str, results: Dict[str, str]) -> str:
 #           PHẦN 2: GIAO DIỆN STREAMLIT (Giữ nguyên)
 # =================================================================
 # ... (Phần giao diện Streamlit từ st.set_page_config trở đi giữ nguyên)
+
 
 
 
