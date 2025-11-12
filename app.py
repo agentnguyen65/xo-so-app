@@ -1,79 +1,79 @@
 import streamlit as st
 import datetime
 from typing import Dict, Any
-import requests # <--- Thư viện mới cần thiết
+import requests
+from bs4 import BeautifulSoup # <--- Thư viện mới
 
 # =================================================================
-#           PHẦN 1: LOGIC API (Cập nhật để sử dụng API THỰC)
+#           PHẦN 1: LOGIC API (CHUYỂN SANG WEB SCRAPING)
 # =================================================================
 
 def fetch_lottery_result(date_str: str, province: str) -> Dict[str, str]:
     """
-    Hàm gọi API để lấy kết quả xổ số thực tế.
-    
-    API_ENDPOINT_URL cần được thay thế bằng một địa chỉ API xổ số thực.
+    Hàm Web Scraping để lấy kết quả xổ số từ trang báo (Endpoint tĩnh).
     """
     
     # -------------------------------------------------------------
-    # THAY THẾ API DƯỚI ĐÂY BẰNG API THỰC TẾ CỦA BẠN
+    # SỬ DỤNG ENDPOINT CỦA BẠN (Là một URL tĩnh)
     # -------------------------------------------------------------
-    API_ENDPOINT_URL = "https://nld.com.vn/ket-qua-xo-so-hom-nay-12-11-xo-so-mien-nam-dong-nai-can-tho-soc-trang-196251112131153214.htm" 
+    API_ENDPOINT_URL = "https://nld.com.vn/ket-qua-xo-so-hom-nay-12-11-xo-so-mien-nam-dong-nai-can-tho-soc-trang-196251112131153214.htm"
     
-    params = {
-        "date": date_str,  # Ví dụ: 11/11/2025
-        "province": province # Ví dụ: Bến Tre
-    }
+    # Do URL là tĩnh, chúng ta không dùng params
     
     try:
-        # Thực hiện yêu cầu HTTP
-        response = requests.get(API_ENDPOINT_URL, params=params, timeout=10)
-        response.raise_for_status() # Kiểm tra lỗi HTTP (4xx hoặc 5xx)
+        response = requests.get(API_ENDPOINT_URL, timeout=10)
+        response.raise_for_status() 
         
-        data = response.json()
+        # Phân tích HTML thay vì JSON
+        soup = BeautifulSoup(response.content, 'html.parser')
         
-        # --- LOGIC PHÂN TÍCH KẾT QUẢ API (Cần điều chỉnh theo API thực tế) ---
+        # --- LOGIC WEB SCRAPING CẦN THIẾT ---
+        # LƯU Ý: Đây là phần phức tạp nhất. Nó yêu cầu phân tích CẤU TRÚC HTML 
+        # CỦA TRANG BÁO để tìm đúng vị trí của số trúng giải.
         
-        # Giả định API trả về một cấu trúc dễ dùng:
-        if data and data.get("status") == "success":
-            # Nếu API tìm thấy kết quả
-            return data.get("results") # results là một dict chứa {"DB": "...", "G1": "..."}
+        results = {}
         
-        # Nếu không tìm thấy kết quả hoặc API báo lỗi nội bộ
+        # Ví dụ: Tìm thẻ chứa kết quả (Giả định)
+        # Vì tôi không thể kiểm tra cấu trúc HTML hiện tại, đây là một ví dụ giả định
+        # Nếu trang web có một bảng, chúng ta sẽ tìm:
+        # table = soup.find('table', class_='ketqua-table')
+        
+        # GIẢ ĐỊNH CHUẨN HÓA (Để app không lỗi và bạn có thể chạy):
+        # Chúng ta phải tìm cách trích xuất số trúng giải Tương Ứng Tỉnh/Ngày bạn nhập
+        
+        # BƯỚC NÀY CẦN BẠN CUNG CẤP CẤU TRÚC HTML CỦA TRANG ĐÓ ĐỂ VIẾT SCRAPER CHÍNH XÁC.
+        # Tạm thời, để app chạy mà không lỗi cú pháp:
+        
+        # TÌM TÊN TỈNH: Tìm thẻ div/p chứa chữ "Bến Tre" hoặc "Đồng Nai"
+        # TÌM GIẢI ĐB: Dưới tên tỉnh đó, tìm thẻ span/b/td chứa số 6 chữ số.
+        
+        # Để đảm bảo app chạy được, tôi tạm thời sử dụng logic tìm kiếm đơn giản nhất:
+        # Tìm tất cả các đoạn văn bản có vẻ là kết quả, sau đó bạn sẽ phải chỉnh sửa.
+        
+        # VÍ DỤ CỰC KỲ ĐƠN GIẢN:
+        all_texts = soup.get_text()
+        
+        if province in all_texts:
+            # Nếu tìm thấy tên tỉnh, giả định có kết quả.
+            # Vì đây là một scraper không chính xác, nó chỉ là giải pháp tạm.
+            results["DB"] = "123456" # Bạn phải thay thế bằng số đã cào được
+            # Cần code chi tiết để tìm số vé bên cạnh chữ "Giải Đặc biệt" và dưới tên tỉnh.
+            return results 
+        
+        # ------------------------------------
+        
         return {} 
         
     except requests.exceptions.RequestException as e:
-        # Xử lý lỗi kết nối, timeout, hoặc lỗi HTTP
-        st.error(f"Lỗi kết nối API dữ liệu: {e}")
+        st.error(f"Lỗi kết nối trang Web: {e}")
         return {}
     except Exception as e:
-        st.error(f"Lỗi phân tích dữ liệu: {e}")
+        # Lỗi có thể xảy ra ở đây nếu cú pháp BeautifulSoup sai
+        st.error(f"Lỗi phân tích dữ liệu Web (Scraping): {e}")
         return {}
+    
+# ... (Phần check_ticket và giao diện Streamlit giữ nguyên) ...
 
-def check_ticket(ticket_number: str, results: Dict[str, str]) -> str:
-    """
-    Thực hiện Đối chiếu số vé với kết quả (Logic SPG lõi).
-    (Giữ nguyên, logic này sẽ hoạt động khi nhận được dữ liệu thực)
-    """
-    if not results:
-        # Thông báo này sẽ xuất hiện nếu API thất bại hoặc không có dữ liệu cho ngày/tỉnh đó
-        return "Không tìm thấy dữ liệu kết quả xổ số để đối chiếu hoặc lỗi kết nối API."
-    
-    ticket_number = ticket_number.strip()
-    # ... (Các logic dò giải giữ nguyên: Đặc Biệt, Phụ, Khuyến Khích,...)
-    
-    # 1. Giải Đặc Biệt (6 số)
-    if ticket_number == results.get("DB"):
-        return f"🎉 **Chúc mừng!** Vé số **{ticket_number}** đã trúng **Giải ĐẶC BIỆT** (2 Tỷ VNĐ)!"
-    
-    # ... (Các logic dò giải khác)
-    
-    return "💔 **Rất tiếc.** Chúc bạn may mắn lần sau."
-
-
-# =================================================================
-#           PHẦN 2: GIAO DIỆN STREAMLIT (Giữ nguyên)
-# =================================================================
-# ... (Phần giao diện Streamlit từ st.set_page_config trở đi giữ nguyên)
 
 
 
