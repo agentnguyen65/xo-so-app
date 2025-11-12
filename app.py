@@ -70,7 +70,7 @@ with col1:
     
 with col2:
     # INPUT 2: Tỉnh
-    province_options = ["TP.HCM", "Đồng Nai", "Cần Thơ", "Sóc Trăng"] # Ví dụ
+    province_options = ["Tất cả các Tỉnh ở miền nam"] # Ví dụ
     province = st.selectbox(
         "Tỉnh/Thành Phố",
         province_options,
@@ -120,4 +120,5 @@ if st.button("🔍 Dò Kết Quả Vé Số", type="primary", use_container_widt
                 st.success("✅ **Hoàn tất đối chiếu!**")
                 st.balloons()
                 st.subheader(f"Kết quả dò vé {ticket_number}:")
+
                 st.info(final_result)
