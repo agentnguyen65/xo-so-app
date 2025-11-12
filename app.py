@@ -8,22 +8,27 @@ from typing import Dict, Any
 
 def fetch_lottery_result(date_str: str, province: str) -> Dict[str, str]:
     """
-    Hàm mô phỏng việc gọi dữ liệu kết quả xổ số (thay thế cho API thực tế).
-    
-    LƯU Ý: Đang sử dụng dữ liệu MÔ PHỎNG. Khi triển khai thực tế, 
-    bạn cần thay thế bằng API truy vấn kết quả xổ số trực tiếp.
+    Hàm mô phỏng việc gọi dữ liệu kết quả xổ số.
     """
-    # Dữ liệu mô phỏng cố định cho mục đích demo UI (ví dụ cho 12/11/2025 tại TP.HCM)
+    # Dữ liệu mô phỏng cho 12/11/2025 tại TP.HCM (Giữ nguyên)
     if date_str == "12/11/2025" and province == "TP.HCM":
         return {
             "DB": "886655", # Đặc biệt
             "G1": "123456",
-            "G2": "778899",
-            "G3_1": "010101",
-            "G3_2": "020202",
-            "G8": "55"
+            # ... (các giải khác)
         }
+    
+    # === DỮ LIỆU MÔ PHỎNG MỚI CHO 11/11/2025 TẠI BẾN TRE ===
+    if date_str == "11/11/2025" and province == "Bến Tre":
+        return {
+            "DB": "238329", # Đặc biệt theo yêu cầu của bạn
+            "G1": "123456", # Giả định các giải khác
+            "G2": "778899",
+            "G8": "99"
+        }
+        
     return {} # Không có kết quả
+# ... (Phần còn lại của code giữ nguyên) ...
 
 def check_ticket(ticket_number: str, results: Dict[str, str]) -> str:
     """
@@ -133,4 +138,5 @@ if st.button("🔍 Dò Kết Quả Vé Số", type="primary", use_container_widt
                 st.balloons()
                 st.subheader(f"Kết quả dò vé {ticket_number}:")
                 st.info(final_result)
+
 
